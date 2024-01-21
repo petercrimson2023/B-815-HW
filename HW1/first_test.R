@@ -18,9 +18,16 @@ uniform_random = runif(n,0,1)
 data_points = (uniform_random>pi_1) * rnorm(n, u1, sigma1) + (uniform_random<=pi_1) * rnorm(n, u2, sigma2)
 
 
-u_init = c(1,1)
-sigma_init = c(2,2)
+u_init = c(1,10)
+sigma_init = c(2,5)
 pi_init = c(1,3)
+
+
+density_list = list()
+for(i in 1:k){
+  density_list[[i]] = dnorm(data_points,u[i],sigma[i])
+}
+density_matrix=data.frame(density_list) %>% as.matrix()
 
 
 
@@ -52,7 +59,7 @@ loss_function = function(data_points,u,sigma,pi_value){
 
 
 
-# gradient function
+# gradient function for u
 
 pi_grad = function(density_matrix, u, sigma, pi_value) {
   
@@ -79,7 +86,7 @@ pi_grad = function(density_matrix, u, sigma, pi_value) {
   
   pi_grad_vec = ((density_matrix %*% second_term_matrix) * inverse_term)  %>% colSums()
   
-  return(pi_grad_vec)
+  return(-pi_grad_vec)
   
 }
 
@@ -98,8 +105,21 @@ grad_calculate = function(data_points,u,sigma,pi_value){
 }
 
 
+centered_data_point = list()
+
+for(i in 1:k)
+{
+  centered_data_point[[i]] = (data_points - u[i]) / sigma[i]
+}
+
+centered_data_point_matrix = data.frame(centered_data_point) %>% as.matrix()
 
 
+pi_square = (pi_value^2 / sum(pi_value^2) ) 
+
+phi_pi =  density_matrix  * pi_square
+
+u_grad = (phi_pi * centered_data_point_matrix) %>% colSums() %>% as.vector()
 
 
 
