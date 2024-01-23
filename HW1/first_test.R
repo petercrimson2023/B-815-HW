@@ -5,36 +5,54 @@ library(dplyr)
 u1 = 5
 sigma1 = 2
 
-u2=10
-sigma2=1/3
+u2=20
+sigma2=8
 
 pi_1 = 1/3
 pi_2 = 2/3
 
-n=100
+n=1000
 
 uniform_random = runif(n,0,1)
 
 data_points = (uniform_random>pi_1) * rnorm(n, u1, sigma1) + (uniform_random<=pi_1) * rnorm(n, u2, sigma2)
 
-u_init = c(1,6)
+#data_points = pi_1 * rnorm(n, u1, sigma1) + pi_2 * rnorm(n, u2, sigma2)
+
+data_points %>% density() %>% plot()
+
+data_points %>% hist()
+
+# testing normality statistically
+
+# Shapiro-Wilk test
+
+#shapiro.test(data_points)
+
+
+u_init = c(1,2)
 sigma_init = c(2,5)
 pi_init = c(1,3)
 
+u= u_init
+sigma = sigma_init
+pi_value = pi_init
 
+
+x = c(pi_value,u,sigma)
 
 # loss function
 
-loss_function = function(data_points,u,sigma,pi_value){
+loss_function = function(x,data_points=data_points){
   n = length(data_points)
-  k = length(u)
+  k = length(x)/3
   loss = 0
   
-  pi_value = pi_value^2/sum(pi_value^2)
+  pi_value = x[1:k]
   
   density_list = list()
   for(i in 1:k){
-    density_list[[i]] = dnorm(data_points,u[i],sigma[i])
+    density_list[[i]] = dnorm(data_points,x[k+i],x[2*k+i])
   }
   density_matrix=data.frame(density_list) %>% as.matrix()
   
@@ -45,7 +63,7 @@ loss_function = function(data_points,u,sigma,pi_value){
 
 
 
-
+#View(density_matrix)
 
 
 
@@ -71,7 +89,7 @@ pi_grad = function(density_matrix, u, sigma, pi_value) {
       }
       else
       {
-        second_term_matrix[i, j] = -2 * pi_value[i] / (sum(pi_value^2)^2)
+        second_term_matrix[i, j] = -2 * pi_value[j] / (sum(pi_value^2)^2)
       }
     }
   }
@@ -176,6 +194,8 @@ grad_descent = function(data_points, parameter_init, step_size, max_iter,eps = 1
     
     text = paste0("iteration: ",i," Loss is: ", loss)
     print(text)
+    print(as.vector(parameter))
+    print("\n")
     
     if (max(abs(parameter - parameter_old)) < eps)
     {
@@ -191,7 +211,7 @@ grad_descent = function(data_points, parameter_init, step_size, max_iter,eps = 1
 }
 
 
-grad_descent(data_points,parameter_init,0.005,1000)
+grad_descent(data_points,parameter_init,0.05,1000)
 
 
 
