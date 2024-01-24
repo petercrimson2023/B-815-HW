@@ -3,35 +3,20 @@
 # Data Generation
 
 library(dplyr)
-
 set.seed(123)
-
 u1 = 1
 sigma1 = 1/3
-
 u2=-1
 sigma2=1/5
-
 pi_1 = 1/3
 pi_2 = 2/3
-
-n=1000
-
-
+n=100
 uniform_random = runif(n,0,1)
-
 data_points = (uniform_random<=pi_1) * rnorm(n, u1, sigma1) + (uniform_random>pi_1) * rnorm(n, u2, sigma2)
 
 # data_points %>% density() %>% plot()
 # 
 # data_points %>% hist()
-
-
-# Initial value
-
-
-
-# loss function using exponential transformation on weights
 
 loss_function = function(x, data_points = data_points) {
   n = length(data_points)
@@ -46,7 +31,7 @@ loss_function = function(x, data_points = data_points) {
   }
   density_matrix = data.frame(density_list) %>% as.matrix()
   
-  loss = (density_matrix %*% pi_value) + 1e-5  # 添加小数以增加数值稳定性
+  loss = (density_matrix %*% pi_value) + 1e-5  
   
   loss = loss %>% log() %>% sum()
   
@@ -88,7 +73,7 @@ grad_function = function(x, data_points) {
   return(c(grad_gamma, grad_u, grad_sigma))
 }
 
-#grad_function(x,data_points)
+
 
 gradient_descent = function(x, data_points, step_size = 0.01, max_iter = 1000, tol = 1e-3, report = TRUE) {
   iter = 0
@@ -134,7 +119,6 @@ gradient_descent = function(x, data_points, step_size = 0.01, max_iter = 1000, t
 x = c(1,1,0,0,1,1)
 
 result = gradient_descent(x,data_points,step_size = 0.1,max_iter = 1000,report =TRUE)
-
 plot(result$loss, type='l')
 
 result[2:5]

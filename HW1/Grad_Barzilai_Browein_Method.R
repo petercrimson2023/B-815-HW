@@ -187,7 +187,7 @@ gradient_BB_descent = function(x,
     
     #step_size = step_size * max(1,log10(1 + iter))
     
-    x = x + step_size * gradient 
+    x = x - step_size * gradient 
     u_frame=rbind(x[(k+1):(2*k)],u_frame)
     sigma_frame=rbind(x[(2*k+1):(3*k)],sigma_frame)
     pi_frame=rbind(exp(x[1:k])/sum(exp(x[1:k])),pi_frame)
@@ -196,6 +196,7 @@ gradient_BB_descent = function(x,
     
     loss_old = loss_new
     loss_new = loss_function(x, data_points)
+    
     if (is.nan(loss_new) || is.infinite(loss_new)) {
       
       names(pi_frame) = paste0("pi_",1:k)
