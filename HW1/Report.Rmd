@@ -599,6 +599,7 @@ gradient_BB_descent = function(x,
 ```
 
 
+
 ```{r}
 
 #x = c(1,2,1,-1,0.33,0.2) #True value, converged to true value within 40 steps n=100
