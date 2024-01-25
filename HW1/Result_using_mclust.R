@@ -30,7 +30,6 @@ gmm_model = Mclust(data_points)
 gmm_model$parameters
 
 
-plot(gmm_model, data_points)
 
 
 

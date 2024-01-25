@@ -82,7 +82,7 @@ grad_function = function(x, data_points)
       sum_exp_gamma_density + exp_gamma_density_value + 1e-5
     
     centered_data_point_list[[i]] =
-      (data_points - x[k + i]) / (x[2 * k + i])
+      (data_points - x[k + i]) / (x[2 * k + i]^2)
     
     second_order_centered_data_point_list[[i]] =
       (data_points - x[k + i]) ^ 2 / (x[2 * k + i] ^ 3) - 1 / (x[2 * k + i])
