@@ -183,9 +183,13 @@ result_list$pi_frame%>% plot(,main="pi",ylim=c(0,1))
 
 
 Applying Nestrov Accleration Method to same dataset
+letting sigma reparameterized as $|\sigma|$ and using subgradients
 
+$\frac{\partial L}{\partial \gamma_i} = - \sum_{j=1}^n [ \frac{\phi (x_j | \mu_i, |\sigma_i| ) exp(\gamma_i)}{\sum_{i=1}^m \phi (x_j | \mu_i, |\sigma_i| ) exp(\gamma_i)}] - n\frac{exp(\gamma_i)}{\sum_{i=1}^m exp(\gamma_i)}$
 
+$\frac{\partial L}{\partial \mu_i} = - \sum_{j=1}^n [ \frac{\phi (x_j | \mu_i,| \sigma_i |) exp(\gamma_i)}{\sum_{i=1}^m \phi (x_j | \mu_i, |\sigma_i| ) exp(\gamma_i)}] \frac{x_j - \mu_i}{\sigma_i^2} $
 
+$\frac{\partial L}{\partial \sigma_i} = - \sum_{j=1}^n [ \frac{\phi (x_j | \mu_i, \sigma_i ) exp(\gamma_i)}{\sum_{i=1}^m \phi (x_j | \mu_i, \sigma_i ) exp(\gamma_i)} \times ( \frac{(x_j - \mu_i)^2 \times sign(\sigma) }{\sigma_i^3} - \frac{sign(\sigma)}{\sigma_i})]$
 
 
 ```{r}

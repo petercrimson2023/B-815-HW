@@ -531,10 +531,11 @@ loss_function_square = function(x, data_points = data_points) {
   return(-loss)
 }
 
-# Gradient function with sigma reparametrized as sigma^2
+# Gradient function with sigma reparametrized as |sigma|
 
 
-grad_function_square = function(x, data_points)
+
+grad_function_absolute = function(x, data_points)
 {
   n = length(data_points)
   k = length(x) / 3
@@ -546,27 +547,27 @@ grad_function_square = function(x, data_points)
   
   exp_gamma_density_list = list() # exp(gamma_i) * density_i matrix used in claculating all gradients
   
-  centered_data_point_list = list() # (x_i - u_i) / sigma_i^2 matrix used in calculating gradient of u
+  centered_data_point_list = list() # ( - u_i) / sigma_i^2 matrix used in calculating gradient of u
   
-  second_order_centered_data_point_list = list() # (x_i - u_i)^2 / sigma_i^3 matrix used in calculating gradient of sigma
+  second_order_centered_data_point_list = list() # (x_ - u_i)^2 / sigma_i^5 matrix used in calculating gradient of sigma
   
   sum_exp_gamma_density = rep(0, n)
   
   for (i in 1:k) {
     
-    exp_gamma_density_value = dnorm(data_points, x[k + i], x[2 * k + i]^2) * exp(x[i]-max_gamma)
+    exp_gamma_density_value = dnorm(data_points, x[k + i], abs(x[2 * k + i])) * exp(x[i]-max_gamma)
     
     exp_gamma_density_list[[i]] =
       exp_gamma_density_value
     
     sum_exp_gamma_density =
-      sum_exp_gamma_density + exp_gamma_density_value + 1e-4
+      sum_exp_gamma_density + exp_gamma_density_value + 1e-8
     
     centered_data_point_list[[i]] =
       (data_points - x[k + i]) / (x[2 * k + i]^4)
     
     second_order_centered_data_point_list[[i]] =
-      2* (data_points - x[k + i])^2 / (x[2 * k + i] ^ 5) - 2 / (x[2 * k + i])
+      (data_points - x[k + i])^2 / (abs(x[2 * k + i]) ^ 3) *sign(x[2 * k + i]) - sign(x[2 * k + i]) / (x[2 * k + i])
     
   }
   
@@ -598,8 +599,8 @@ grad_function_square = function(x, data_points)
 
 
 
-
 # Gradient descent with sigma reparmetrizied as sigma^2 and using Nestrov Acceleration
+
 
 
 gradient_Nestrov_descent = function(x,
@@ -621,8 +622,7 @@ gradient_Nestrov_descent = function(x,
   x_old = x
   y_old = x
   
-  #loss_new = loss_function_square(x, data_points)
-  loss_new = loss_function(x, data_points)
+  loss_new = loss_function_square(x, data_points)
   
   if (is.nan(loss_new) || is.infinite(loss_new)) {
     stop("Initial loss is NaN or infinite")
@@ -634,19 +634,19 @@ gradient_Nestrov_descent = function(x,
   sigma_frame=rbind(x[(2*k+1):(3*k)],sigma_frame)
   pi_frame=rbind(exp(x[1:k])/sum(exp(x[1:k])),pi_frame)
   
-  lambda_old = 0.1
+  lambda_old = 0.01
   
   
   while (iter < max_iter) {
     
     iter = iter + 1
-    y_old[(2*k+1):(3*k)] = abs(y_old[(2*k+1):(3*k)])
     
-    #gradient = grad_function_square(y_old, data_points)
-    gradient = grad_function_square(y_old, data_points)
+    gradient = grad_function_absolute(y_old, data_points)
     
-    x = y_old - step_size * gradient
-
+    x = y_old - step_size * (1+1/(0.01*iter)) * gradient
+    
+    
+    
     # Checking if gradient is NaN or infinite
     if (any(is.nan(gradient)) || any(is.infinite(gradient))) {
       
@@ -683,7 +683,6 @@ gradient_Nestrov_descent = function(x,
     pi_frame=rbind(exp(x[1:k])/sum(exp(x[1:k])),pi_frame)
     
     loss_old = loss_new
-    x[(2*k+1):(3*k)] = abs(x[(2*k+1):(3*k)])
     loss_new = loss_function_square(x, data_points)
     if (is.nan(loss_new) || is.infinite(loss_new)) {
       
